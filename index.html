@@ -1,0 +1,219 @@
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Complete Web App</title>
+
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  padding: 0;
+  background: lightblue;
+}
+
+header {
+  background: #222;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+.container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 15px;
+  background: orange;
+  color: black;
+  text-decoration: none;
+  margin-top: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 8px 0;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📚 My Online Store</h1>
+  <button class="btn" onclick="showPage('store')">Store</button>
+  <button class="btn" onclick="showPage('cart')">Cart 🛒</button>
+  <button class="btn" onclick="showPage('track')">Track 📦</button>
+  <button class="btn" onclick="showPage('resume')">Resume</button>
+</header>
+
+<!-- STORE -->
+<section id="store" class="container">
+  <h2>Available Products</h2>
+  <div id="product-list" class="grid"></div>
+</section>
+
+<!-- CART -->
+<section id="cart" class="container hidden">
+  <h2>🛒 Your Cart</h2>
+  <div id="cart-items"></div>
+  <h3 id="total-price"></h3>
+
+  <h3>Place Order</h3>
+  <input type="email" id="email" placeholder="Enter Email">
+  <input type="text" id="city" placeholder="Enter City">
+  <button class="btn" onclick="placeOrder()">Place Order</button>
+</section>
+
+<!-- TRACK -->
+<section id="track" class="container hidden">
+  <h2>📦 Track Order</h2>
+  <input type="email" id="trackEmail" placeholder="Enter Email">
+  <button class="btn" onclick="trackOrder()">Track</button>
+  <div id="order-details"></div>
+</section>
+
+<!-- RESUME -->
+<section id="resume" class="container hidden">
+  <h2>My Resume</h2>
+  <p>I am an AI Engineer passionate about ML & Web Development.</p>
+  <ul>
+    <li>Python, TensorFlow</li>
+    <li>Computer Vision</li>
+    <li>Web Dev</li>
+  </ul>
+</section>
+
+<script>
+const products = [
+  { id: 1, name: "AI Book", desc: "Learn AI Basics", price: 499 },
+  { id: 2, name: "ML Course", desc: "Complete ML Bootcamp", price: 1999 },
+  { id: 3, name: "DS Notes", desc: "Quick Revision Notes", price: 299 }
+];
+
+// NAVIGATION
+function showPage(page) {
+  document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
+  document.getElementById(page).classList.remove("hidden");
+  if(page === "cart") loadCart();
+}
+
+// LOAD PRODUCTS
+let list = document.getElementById("product-list");
+
+products.forEach(p => {
+  let div = document.createElement("div");
+  div.className = "card";
+
+  div.innerHTML = `
+    <h3>${p.name}</h3>
+    <p>${p.desc}</p>
+    <h4>₹${p.price}</h4>
+    <button class="btn" onclick="addToCart(${p.id})">Add to Cart</button>
+  `;
+  list.appendChild(div);
+});
+
+// ADD TO CART
+function addToCart(id) {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  cart.push(products.find(p => p.id === id));
+  localStorage.setItem("cart", JSON.stringify(cart));
+  alert("Added to Cart!");
+}
+
+// LOAD CART
+function loadCart() {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let div = document.getElementById("cart-items");
+  div.innerHTML = "";
+  let total = 0;
+
+  cart.forEach((item, index) => {
+    total += item.price;
+
+    div.innerHTML += `
+      <p>${item.name} - ₹${item.price}
+      <button onclick="removeItem(${index})">❌</button></p>
+    `;
+  });
+
+  document.getElementById("total-price").innerText =
+    "Total Price: ₹" + total;
+}
+
+// REMOVE ITEM
+function removeItem(index) {
+  let cart = JSON.parse(localStorage.getItem("cart"));
+  cart.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  loadCart();
+}
+
+// PLACE ORDER
+function placeOrder() {
+  let email = document.getElementById("email").value;
+  let city = document.getElementById("city").value;
+
+  if (!email || !city) {
+    alert("Fill all details!");
+    return;
+  }
+
+  let order = {
+    email,
+    city,
+    status: "Order Placed ✅"
+  };
+
+  localStorage.setItem("order", JSON.stringify(order));
+  alert("Order Placed!");
+}
+
+// TRACK ORDER
+function trackOrder() {
+  let email = document.getElementById("trackEmail").value;
+  let order = JSON.parse(localStorage.getItem("order"));
+
+  let div = document.getElementById("order-details");
+
+  if (order && order.email === email) {
+    div.innerHTML = `
+      <p>Status: ${order.status}</p>
+      <p>City: ${order.city}</p>
+    `;
+  } else {
+    div.innerHTML = "<p>No order found</p>";
+  }
+}
+</script>
+
+</body>
+</html>
+```
